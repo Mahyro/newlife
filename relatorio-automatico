@@ -1,0 +1,43 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
+import os
+
+# Função para salvar a página em PDF
+def save_page_as_pdf(url, output_pdf):
+    # Configurações do Chrome para rodar em headless mode e salvar em PDF
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')  # Rodar sem interface gráfica
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--no-sandbox')
+
+    # Configurar o Chrome para salvar em PDF
+    chrome_prefs = {
+        'printing.print_preview_sticky_settings.appState': '{"recentDestinations":[{"id":"Save as PDF","origin":"local"}],"selectedDestinationId":"Save as PDF","version":2}',
+        'savefile.default_directory': os.path.dirname(output_pdf),  # Defina o diretório de download para onde o PDF será salvo
+    }
+    chrome_options.add_experimental_option('prefs', chrome_prefs)
+    chrome_options.add_argument('--kiosk-printing')  # Força o Chrome a salvar o PDF sem prompt
+
+    # Inicializar o ChromeDriver com as opções
+    driver = webdriver.Chrome(options=chrome_options)
+    
+    # Acessar a página
+    driver.get(url)
+    
+    # Esperar alguns segundos para garantir que a página carregue completamente
+    time.sleep(5)
+    
+    # Executar o comando de impressão para PDF
+    driver.execute_script('window.print();')
+    
+    # Esperar um tempo adicional para o PDF ser gerado
+    time.sleep(5)
+    
+    # Fechar o navegador
+    driver.quit()
+
+# Exemplo de uso
+url = 'http://177.72.80.14:3000/public-dashboards/bb4cc1ae361f46f98d7d3d46bd53c411'
+output_pdf = '/caminho/para/salvar/pagina.pdf'  # Ajuste para o caminho onde deseja salvar o PDF
+save_page_as_pdf(url, output_pdf)
